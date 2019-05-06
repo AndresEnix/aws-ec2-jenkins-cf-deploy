@@ -1,0 +1,78 @@
+{
+    "Parameters": {
+        "VpcId": {
+            "Description": "VPC of the security group",
+            "Type": "String"
+        },
+        "SubnetId": {
+            "Description": "Id of the subnet",
+            "Type": "String"
+        },
+        "ServiceName": {
+            "Description": "Name of the service",
+            "Type": "String"
+        },
+        "AmiId": {
+            "Description": "Id of the AMI that will be used to create the EC2 instance",
+            "Type": "String"
+        },
+        "KeyPair": {
+            "Description": "Key pair that will be used to create the EC2 instance",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "Description": "Instance type of the EC2 instance",
+            "Type": "String"
+        },
+        "Script": {
+            "Description": "Script that will setuo the environment",
+            "Type": "String"
+        }
+    },
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "ServiceSecurityGroup": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": "https://s3.amazonaws.com/ae-cloudformation-templates/create-sandbox-security-group.json",
+                "Parameters": {
+                    "VpcId": {
+                        "Ref": "VpcId"
+                    },
+                    "GroupName": {
+                        "Ref": "ServiceName"
+                    }
+                },
+                "TimeoutInMinutes": "5"
+            }
+        },
+        "ServiceInstance": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": "https://s3.amazonaws.com/ae-cloudformation-templates/create-sandbox-instance.json",
+                "Parameters": {
+                    "ServiceName": {
+                        "Ref": "ServiceName"
+                    },
+                    "AmiId": {
+                        "Ref": "AmiId"
+                    },
+                    "KeyPair": {
+                        "Ref": "KeyPair"
+                    },
+                    "InstanceType": {
+                        "Ref": "InstanceType"
+                    },
+                    "SubnetId": {
+                        "Ref": "SubnetId"
+                    },
+                    "Script": {
+                        "Ref": "Script"
+                    }
+                },
+                "TimeoutInMinutes": "5"
+            },
+            "DependsOn": "ServiceSecurityGroup"
+        }
+    }
+}

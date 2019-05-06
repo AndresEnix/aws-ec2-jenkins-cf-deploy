@@ -1,0 +1,93 @@
+{
+    "Parameters": {
+        "VpcId": {
+            "Description": "VPC of the security group",
+            "Type": "String"
+        },
+        "GroupName": {
+            "Description": "Name of the securirty group",
+            "Type": "String"
+        }
+    },
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates a sanbox instance",
+    "Resources": {
+        "SandBoxEC2SecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": {
+                    "Ref": "GroupName"
+                },
+                "GroupDescription": "Security group for the application",
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "icmp",
+                        "FromPort": -1,
+                        "ToPort": -1,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 7001,
+                        "ToPort": 7001,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 9002,
+                        "ToPort": 9002,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 8080,
+                        "ToPort": 8080,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 50000,
+                        "ToPort": 50000,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "SecurityGroup": {
+            "Description": "Security group",
+            "Value": {
+                "Ref": "SandBoxEC2SecurityGroup"
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "GroupName"
+                            },
+                            "SecurityGroup"
+                        ]
+                    ]
+                }
+            }
+        }
+    }
+}

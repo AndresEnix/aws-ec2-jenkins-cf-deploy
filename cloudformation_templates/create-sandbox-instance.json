@@ -1,0 +1,86 @@
+{
+    "Parameters": {
+        "AmiId": {
+            "Description": "Id of the AMI that will be used to create the EC2 instance",
+            "Type": "String"
+        },
+        "KeyPair": {
+            "Description": "Key pair that will be used to create the EC2 instance",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "Description": "Instance type of the EC2 instance",
+            "Type": "String"
+        },
+        "SubnetId": {
+            "Description": "Id of the subnet",
+            "Type": "String"
+        },
+        "Script": {
+            "Description": "Setup script",
+            "Type": "String"
+        },
+        "ServiceName": {
+            "Description": "Name of the service",
+            "Type": "String"
+        }
+    },
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates a sanbox instance",
+    "Resources": {
+        "SandBoxEC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "true",
+                        "DeviceIndex": "0",
+                        "SubnetId": {
+                            "Ref": "SubnetId"
+                        },
+                        "GroupSet": [
+                            {
+                                "Fn::ImportValue": {
+                                    "Fn::Join": [
+                                        "-",
+                                        [
+                                            {
+                                                "Ref": "ServiceName"
+                                            },
+                                            "SecurityGroup"
+                                        ]
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash -xe",
+                                "touch script.sh",
+                                "touch log.txt",
+                                {
+                                    "Fn::Sub": "curl ${Script} >> script.sh"
+                                },
+                                "sudo bash ./script.sh >> log.txt"
+                            ]
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
