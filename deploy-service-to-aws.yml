@@ -1,19 +1,18 @@
 ---
 
-- name: "Create/Update {{ service }} inside an EC2 instance"
+- name: "Create/Update {{ service_name }} inside an EC2 instance"
   hosts: localhost
   gather_facts: False
   vars:
     region: us-east-1
     vpc_id: vpc-07117e9acd72c9bee
     subnet_id: subnet-0f13fa5acc95f7d4b
-    service_name: "{{ name }}-{{ service }}"
-    stack_name: "{{ service_name }}-service"
+    stack_name: "{{ service_name }}-{{ branch_name }}"
     ami_id: ami-0de53d8956e8dcf80
     instance_type: "t2.micro"
-    key_pair: "{{ service }}-pair"
+    key_pair: "{{ service_name }}-pair"
   tasks:
-    - name: "Executing the stack { stack_name }}"
+    - name: "Executing the stack {{ stack_name }}"
       cloudformation:
         region: "{{ region }}"
         stack_name: "{{ stack_name }}"
@@ -23,12 +22,15 @@
         template_parameters:
           VpcId: "{{ vpc_id }}"
           SubnetId : "{{ subnet_id }}"
-          ServiceName: "{{ service_name }}"
           AmiId: "{{ ami_id }}"
           InstanceType: "{{ instance_type }}"
           KeyPair: "{{ key_pair }}"
-          Script: "https://s3.amazonaws.com/<s3_bucket>/install_{{ service }}.sh"
+          ServiceName: "{{ service_name }}"
+          BranchName: "{{ branch_name }}"
+          TemplatesBucket: "{{ cf_bucket }}"
+          Script: "https://s3.amazonaws.com/{{ sh_bucket }}/install_{{ service_name }}.sh"
         tags:
+          Name: "{{ stack_name }}"
           Stack: "{{ stack_name }}"
-          Name: "{{ service_name }}"
-          Service: "{{ service }}"
+          Service: "{{ service_name }}"
+          Branch: "{{ branch_name }}"

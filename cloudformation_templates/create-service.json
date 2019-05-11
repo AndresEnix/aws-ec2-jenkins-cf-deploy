@@ -8,20 +8,28 @@
             "Description": "Id of the subnet",
             "Type": "String"
         },
-        "ServiceName": {
-            "Description": "Name of the service",
-            "Type": "String"
-        },
         "AmiId": {
             "Description": "Id of the AMI that will be used to create the EC2 instance",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "Description": "Instance type of the EC2 instance",
             "Type": "String"
         },
         "KeyPair": {
             "Description": "Key pair that will be used to create the EC2 instance",
             "Type": "String"
         },
-        "InstanceType": {
-            "Description": "Instance type of the EC2 instance",
+        "ServiceName": {
+            "Description": "Name of the service",
+            "Type": "String"
+        },
+        "BranchName": {
+            "Description": "Name of the branch",
+            "Type": "String"
+        },
+        "TemplatesBucket": {
+            "Description": "Name of the s3 bucket",
             "Type": "String"
         },
         "Script": {
@@ -34,7 +42,17 @@
         "ServiceSecurityGroup": {
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
-                "TemplateURL": "https://s3.amazonaws.com/ae-cloudformation-templates/create-sandbox-security-group.json",
+                "TemplateURL": {
+                    "Fn::Join": [
+                        "/",
+                        [
+                            "https:/",
+                            "s3.amazonaws.com",
+                            {"Ref": "TemplatesBucket"},
+                            "create-sandbox-security-group.json"
+                        ]
+                    ]
+                },
                 "Parameters": {
                     "VpcId": {
                         "Ref": "VpcId"
@@ -49,22 +67,32 @@
         "ServiceInstance": {
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
-                "TemplateURL": "https://s3.amazonaws.com/ae-cloudformation-templates/create-sandbox-instance.json",
+                "TemplateURL": {
+                    "Fn::Join": [
+                        "/",
+                        [
+                            "https:/",
+                            "s3.amazonaws.com",
+                            {"Ref": "TemplatesBucket"},
+                            "create-sandbox-instance.json"
+                        ]
+                    ]
+                },
                 "Parameters": {
-                    "ServiceName": {
-                        "Ref": "ServiceName"
+                    "SubnetId": {
+                        "Ref": "SubnetId"
                     },
                     "AmiId": {
                         "Ref": "AmiId"
                     },
-                    "KeyPair": {
-                        "Ref": "KeyPair"
-                    },
                     "InstanceType": {
                         "Ref": "InstanceType"
                     },
-                    "SubnetId": {
-                        "Ref": "SubnetId"
+                    "KeyPair": {
+                        "Ref": "KeyPair"
+                    },
+                    "ServiceName": {
+                        "Ref": "ServiceName"
                     },
                     "Script": {
                         "Ref": "Script"
