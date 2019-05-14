@@ -1,7 +1,7 @@
 ---
 
-- name: "Create/Update {{ service_name }} inside an EC2 instance"
-  hosts: localhost
+- name: "Creates/Updates {{ service_name }}-{{ branch_name }} sandbox inside"
+  hosts: local
   gather_facts: False
   vars:
     region: us-east-1
@@ -12,7 +12,7 @@
     instance_type: "t2.micro"
     key_pair: "{{ service_name }}-pair"
   tasks:
-    - name: "Executing the stack {{ stack_name }}"
+    - name: "Executing the cloudformation stack {{ stack_name }}"
       cloudformation:
         region: "{{ region }}"
         stack_name: "{{ stack_name }}"
@@ -34,3 +34,4 @@
           Stack: "{{ stack_name }}"
           Service: "{{ service_name }}"
           Branch: "{{ branch_name }}"
+          Commit: "{{ commit_hash }}"
