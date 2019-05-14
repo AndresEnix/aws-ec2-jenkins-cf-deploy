@@ -30,7 +30,7 @@ synch_files() {
 }
 
 run_playbook(){
-    ansible-playbook create-sandbox-instance.yml --extra-vars "service_name=$1 branch_name=$2 commit_hash=$3 cf_bucket=$4 sh_bucket=$5"
+    ansible-playbook deploy-service.yml --extra-vars "service_name=$1 branch_name=$2 commit_hash=$3 cf_bucket=$4 sh_bucket=$5"
 }
 
 # $1 = S3 bucket

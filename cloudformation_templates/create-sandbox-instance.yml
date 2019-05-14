@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a sandbox instance
+
+Parameters:
+  NamespaceParameter:
+    Type: String
+    Description: Name of the branch from which the build was triggered
+  ServiceNameParameter:
+    Type: String
+    Description: Name of the service that will be running inside the instance
+  SubnetIdParameter:
+    Type: String
+    Description: Id of the subnet where the instance will be running
+  ImageIdParameter:
+    Type: String
+    Default: ami-0de53d8956e8dcf80
+    Description: Enter image ID. Default is ami-0de53d8956e8dcf80
+  InstanceTypeParameter: 
+    Type: String
+    Default: t2.micro
+    AllowedValues: 
+      - t2.micro
+      - m1.small
+    Description: Enter t2.micro or m1.small. Default is t2.micro
+
+Resources:
+  SandboxInstance:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !Ref ImageIdParameter
+      InstanceType: !Ref InstanceTypeParameter
+      KeyName: !Sub "${NamespaceParameter}-pair"
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetIdParameter
+          GroupSet:
+            - Fn::ImportValue: !Sub "${NamespaceParameter}-ssh-sg"
+            - Fn::ImportValue: !Sub "${NamespaceParameter}-icmp-sg"
+            - Fn::ImportValue: !Sub "${NamespaceParameter}-${ServiceNameParameter}-sg"
+      UserData: String
+      Tags:
+      - Key: Name
+        Value: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"
+
+Outputs:
+  ServiceInstance:
+    Description: "Sandbox instance"
+    Value: !Ref SandboxInstance
+    Export:
+      Name: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"

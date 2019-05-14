@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a sandbox instance
+
+Parameters:
+  VpcParameter:
+    Type: String
+    Description: The vpc id where the security group will be created
+  SubnetIdParameter:
+    Type: String
+    Description: Id of the subnet where the instance will be running
+  CidrIpParameter:
+    Type: String
+    Description: IP address range (in CIDR notation)
+  NamespaceParameter:
+    Type: String
+    Description: Prefix that will be assigned to the security group name
+  ServiceNameParameter:
+    Type: String
+    Description: Name of the service that will be running inside the instance
+  ImageIdParameter:
+    Type: String
+    Description: Enter image ID. Default is ami-0de53d8956e8dcf80
+  InstanceTypeParameter: 
+    Type: String
+    Description: Enter t2.micro or m1.small. Default is t2.micro
+  TemplatesBucketParameter:
+    Type: String
+    Description: Bucket where the cloudformation templates are located
+
+Resources:
+  SecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/create-security-groups.yml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        VpcParameter: !Ref VpcParameter
+        NamespaceParameter: !Ref NamespaceParameter
+        CidrIpParameter: !Ref CidrIpParameter
+  ServiceInstanceStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn : SecurityGroupStack
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/create-sandbox-instance.yml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        NamespaceParameter: !Ref NamespaceParameter
+        ServiceNameParameter: !Ref ServiceNameParameter
+        SubnetIdParameter: !Ref SubnetIdParameter
+        ImageIdParameter: !Ref ImageIdParameter
+        InstanceTypeParameter: !Ref InstanceTypeParameter
