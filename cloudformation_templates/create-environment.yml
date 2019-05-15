@@ -15,6 +15,18 @@ Mappings:
       publicSubnet2: 10.193.11.0/24
       privateSubnet1: 10.193.20.0/24
       privateSubnet2: 10.193.21.0/24
+    qa:
+      vpc: 10.194.0.0/16
+      publicSubnet1: 10.194.10.0/24
+      publicSubnet2: 10.194.11.0/24
+      privateSubnet1: 10.194.20.0/24
+      privateSubnet2: 10.194.21.0/24
+    prod:
+      vpc: 10.195.0.0/16
+      publicSubnet1: 10.195.10.0/24
+      publicSubnet2: 10.195.11.0/24
+      privateSubnet1: 10.195.20.0/24
+      privateSubnet2: 10.195.21.0/24
 
 Parameters:
   NamespaceParameter:
