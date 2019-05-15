@@ -51,30 +51,6 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${NamespaceParameter}-icmp-sg"
-  JenkinsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub "${NamespaceParameter}-jenkins-sg"
-      GroupDescription: Security group that allows incoming TCP request (ports 8080 and 50000)
-      VpcId:
-        Fn::ImportValue: !Sub "${NamespaceParameter}-vpc"
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 8080
-        ToPort: 8080
-        CidrIp: !Ref CidrIpParameter
-      - IpProtocol: tcp
-        FromPort: 50000
-        ToPort: 50000
-        CidrIp: !Ref CidrIpParameter
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 0
-        ToPort: 65535
-        CidrIp: !Ref CidrIpParameter
-      Tags:
-      - Key: Name
-        Value: !Sub "${NamespaceParameter}-jenkins-sg"
 
 Outputs:
   NoIngressSecGrp:
@@ -92,8 +68,3 @@ Outputs:
     Value: !Ref IcmpSecurityGroup
     Export:
       Name: !Sub "${NamespaceParameter}-icmp-sg"
-  JenkinsSecGrp:
-    Description: Security group that allows incoming TCP request (ports 8080 and 50000)
-    Value: !Ref JenkinsSecurityGroup
-    Export:
-      Name: !Sub "${NamespaceParameter}-jenkins-sg"
