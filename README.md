@@ -13,5 +13,5 @@ Just clone the project and execute the ./run.sh script
 ## Playbook Parameters
 Just execute the following command
 ```
-ansible-playbook deploy-service-to-aws.yml --extra-vars "service_name=<val_1> branch_name=<val_2> cf_bucket=<val_3> sh_bucket=<val_4> pem_bucket=<val_5>"
+ansible-playbook deploy-environment.yml --extra-vars "branch_name=$1 commit_hash=$2 cf_bucket=$3"
 ```

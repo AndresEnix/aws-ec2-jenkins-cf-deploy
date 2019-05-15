@@ -1,17 +1,16 @@
 #!/bin/bash -e
 
 # Attributes
-BRANCH_NAME='master'
+BRANCH_NAME=''
 COMMIT_HASH=''
-SERVICE_NAME='jenkins'
 CFT_BUCKET='ae-cloudformation-templates'
-SH_BUCKET='ae-shell-scripts'
 PEM_BUCKET='ae-key-pairs'
 
 # $1 = Branch name
 checkout() {
     git pull
     git checkout $1
+    BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
     COMMIT_HASH=$(git rev-parse --verify HEAD)
 }
 
@@ -30,7 +29,7 @@ synch_files() {
 }
 
 run_playbook(){
-    ansible-playbook deploy-service.yml --extra-vars "service_name=$1 branch_name=$2 commit_hash=$3 cf_bucket=$4 sh_bucket=$5"
+    ansible-playbook deploy-environment.yml --extra-vars "branch_name=$1 commit_hash=$2 cf_bucket=$3"
 }
 
 # $1 = S3 bucket
@@ -48,7 +47,6 @@ clean_environment(){
 # Body
 checkout $BRANCH_NAME
 synch_files $CFT_BUCKET "cloudformation_templates" "cloudformation templates"
-synch_files $SH_BUCKET "shells" "shell scripts"
-run_playbook $SERVICE_NAME $BRANCH_NAME $COMMIT_HASH $CFT_BUCKET $SH_BUCKET
+run_playbook $BRANCH_NAME $COMMIT_HASH $CFT_BUCKET
 download_pems $PEM_BUCKET "key_pairs"
 clean_environment "key_pairs"

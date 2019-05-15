@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates the security groups
 
 Parameters:
-  VpcParameter:
-    Type: String
-    Description: The vpc id where the security group will be created
   NamespaceParameter:
     Type: String
     Description: Prefix that will be assigned to the security group name
@@ -14,12 +11,23 @@ Parameters:
     Default: 0.0.0.0/0
 
 Resources:
+  NoIngressSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${NamespaceParameter}-no-ingress-sg"
+      GroupDescription: Security group with no ingress rule
+      VpcId:
+        Fn::ImportValue: !Sub "${NamespaceParameter}-vpc"
+      Tags:
+      - Key: Name
+        Value: !Sub "${NamespaceParameter}-no-ingress-sg"
   SshSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub "${NamespaceParameter}-ssh-sg"
       GroupDescription: Security group that allows incoming SSH request (por 22)
-      VpcId: !Ref VpcParameter
+      VpcId:
+        Fn::ImportValue: !Sub "${NamespaceParameter}-vpc"
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
@@ -33,7 +41,8 @@ Resources:
     Properties:
       GroupName: !Sub "${NamespaceParameter}-icmp-sg"
       GroupDescription: Security group that allows incoming ICMP request
-      VpcId: !Ref VpcParameter
+      VpcId:
+        Fn::ImportValue: !Sub "${NamespaceParameter}-vpc"
       SecurityGroupIngress:
       - IpProtocol: icmp
         FromPort: 8
@@ -47,7 +56,8 @@ Resources:
     Properties:
       GroupName: !Sub "${NamespaceParameter}-jenkins-sg"
       GroupDescription: Security group that allows incoming TCP request (ports 8080 and 50000)
-      VpcId: !Ref VpcParameter
+      VpcId:
+        Fn::ImportValue: !Sub "${NamespaceParameter}-vpc"
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 8080
@@ -67,6 +77,11 @@ Resources:
         Value: !Sub "${NamespaceParameter}-jenkins-sg"
 
 Outputs:
+  NoIngressSecGrp:
+    Description: Security group with no ingress rule
+    Value: !Ref NoIngressSecurityGroup
+    Export:
+      Name: !Sub "${NamespaceParameter}-no-ingress-sg"
   SshSecGrp:
     Description: Security group that allows incoming SSH request (por 22)
     Value: !Ref SshSecurityGroup
