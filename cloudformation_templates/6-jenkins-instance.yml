@@ -11,6 +11,9 @@ Parameters:
   SubnetIdParameter:
     Type: String
     Description: Id of the subnet where the instance will be running
+  ScriptParameter:
+    Type: String
+    Description: Shell with the initial configuration
   ImageIdParameter:
     Type: String
     Default: ami-0de53d8956e8dcf80
@@ -24,12 +27,12 @@ Parameters:
     Description: Enter t2.micro or m1.small. Default is t2.micro
 
 Resources:
-  SandboxInstance:
+  SandboxJenkinsInstance:
     Type: AWS::EC2::Instance
     Properties: 
       ImageId: !Ref ImageIdParameter
       InstanceType: !Ref InstanceTypeParameter
-      KeyName: !Sub "${NamespaceParameter}-pair"
+      KeyName: !Sub "${NamespaceParameter}-key"
       NetworkInterfaces: 
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
@@ -38,14 +41,15 @@ Resources:
             - Fn::ImportValue: !Sub "${NamespaceParameter}-ssh-sg"
             - Fn::ImportValue: !Sub "${NamespaceParameter}-icmp-sg"
             - Fn::ImportValue: !Sub "${NamespaceParameter}-${ServiceNameParameter}-sg"
-      UserData: String
+      UserData: 
+        Fn::Base64: !Ref ScriptParameter
       Tags:
       - Key: Name
         Value: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"
 
 Outputs:
-  ServiceInstance:
-    Description: "Sandbox instance"
-    Value: !Ref SandboxInstance
+  JenkinsInstance:
+    Description: "Sandbox jenkins instance"
+    Value: !Ref SandboxJenkinsInstance
     Export:
       Name: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"

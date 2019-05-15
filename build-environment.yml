@@ -1,0 +1,41 @@
+---
+
+- name: "Creates/Updates {{ branch_name }} environment"
+  hosts: local
+  gather_facts: False
+  vars:
+    region: us-east-1
+    ami_id: ami-0de53d8956e8dcf80
+    instance_type: "t2.micro"
+  tasks:
+    - name: "Runs {{ branch_name }}-environment cloudformation stack"
+      cloudformation:
+        region: "{{ region }}"
+        stack_name: "{{ branch_name }}-environment"
+        template: "./cloudformation_templates/1-environment.yml"
+        state: "present"
+        disable_rollback: false
+        template_parameters:
+          NamespaceParameter: "{{ branch_name }}"
+          TemplatesBucketParameter: "{{ cf_bucket }}"
+        tags:
+          Stack: "{{ branch_name }}-environment"
+          Environment: "{{ branch_name }}"
+          Commit: "{{ commit_hash }}"
+    - name: "Adds jenkins service to environment"
+      cloudformation:
+        region: "{{ region }}"
+        stack_name: "{{ branch_name }}-jenkins"
+        template: "./cloudformation_templates/4-jenkins-service.yml"
+        state: "present"
+        disable_rollback: false
+        template_parameters:
+          NamespaceParameter: "{{ branch_name }}"
+          ServiceNameParameter: "jenkins"
+          TemplatesBucketParameter: "{{ cf_bucket }}"
+          ScriptParameter: "{{lookup('file', './shells/install_jenkins.sh') }}"
+        tags:
+          Stack: "{{ branch_name }}-jenkins"
+          Service: "jenkins"
+          Environment: "{{ branch_name }}"
+          Commit: "{{ commit_hash }}"

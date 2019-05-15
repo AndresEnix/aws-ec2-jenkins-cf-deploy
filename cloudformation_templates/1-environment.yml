@@ -37,10 +37,10 @@ Parameters:
     Type: String
 
 Resources:
-  VpcStack:
+  Vpc:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/create-vpc.yml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/2-vpc.yml"
       TimeoutInMinutes: '5'
       Parameters:
         NamespaceParameter: !Ref NamespaceParameter
@@ -49,11 +49,11 @@ Resources:
         PublicSubnet2CIDR: !FindInMap [CidrMap, !Ref NamespaceParameter, publicSubnet2]
         PrivateSubnet1CIDR: !FindInMap [CidrMap, !Ref NamespaceParameter, privateSubnet1]
         PrivateSubnet2CIDR: !FindInMap [CidrMap, !Ref NamespaceParameter, privateSubnet2]
-  SecurityGroupsStack:
+  SecurityGroups:
     Type: AWS::CloudFormation::Stack
-    DependsOn : VpcStack
+    DependsOn : Vpc
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/create-security-groups.yml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/3-vpc-security-groups.yml"
       TimeoutInMinutes: '5'
       Parameters:
         NamespaceParameter: !Ref NamespaceParameter

@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a sandbox instance
+
+Parameters:
+  NamespaceParameter:
+    Type: String
+    Description: Prefix that will be assigned to the security group name
+  ServiceNameParameter:
+    Type: String
+    Description: Name of the service that will be running inside the instance
+  TemplatesBucketParameter:
+    Type: String
+    Description: Bucket where the cloudformation templates are located
+  ScriptParameter:
+    Type: String
+    Description: Shell with the initial configuration
+
+Resources:
+  JenkinsSg:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/5-jenkins-security-groups.yml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        NamespaceParameter: !Ref NamespaceParameter
+  JenkinsInstance:
+    Type: AWS::CloudFormation::Stack
+    DependsOn : JenkinsSg
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/6-jenkins-instance.yml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        NamespaceParameter: !Ref NamespaceParameter
+        ServiceNameParameter: !Ref ServiceNameParameter
+        SubnetIdParameter:
+          Fn::ImportValue: !Sub "${NamespaceParameter}-pub-subnet-1"
+        ScriptParameter: !Ref ScriptParameter
