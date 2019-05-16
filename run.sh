@@ -28,12 +28,15 @@ synch_files() {
     then
         echo "[INFO] Creating bucket $1"
         aws s3api create-bucket --bucket $1 --region $AWS_REGION
+        sleep 5
         echo "[INFO] Enabling versioning configuration for $1 bucket"
         aws s3api put-bucket-versioning --bucket $1 --versioning-configuration Status=Enabled
+        sleep 5
     fi
 
     echo "[INFO] Uploading files from '$2' folder to '$1' bucket"
     aws s3 sync $2 s3://$1/
+    sleep 5
 
     if $3 ;
     then
