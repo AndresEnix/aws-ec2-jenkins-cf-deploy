@@ -16,18 +16,18 @@ Parameters:
     Description: Shell with the initial configuration
 
 Resources:
-  JenkinsSg:
+  ServiceSecurityGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/5-jenkins-security-groups.yml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/5-${ServiceNameParameter}-security-groups.yml"
       TimeoutInMinutes: '5'
       Parameters:
         NamespaceParameter: !Ref NamespaceParameter
-  JenkinsInstance:
+  ServiceInstance:
     Type: AWS::CloudFormation::Stack
-    DependsOn : JenkinsSg
+    DependsOn : ServiceSecurityGroup
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/6-jenkins-instance.yml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplatesBucketParameter}/6-sandbox-instance.yml"
       TimeoutInMinutes: '5'
       Parameters:
         NamespaceParameter: !Ref NamespaceParameter

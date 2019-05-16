@@ -27,7 +27,7 @@ Parameters:
     Description: Enter t2.micro or m1.small. Default is t2.micro
 
 Resources:
-  SandboxJenkinsInstance:
+  SandboxInstance:
     Type: AWS::EC2::Instance
     Properties: 
       ImageId: !Ref ImageIdParameter
@@ -48,8 +48,8 @@ Resources:
         Value: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"
 
 Outputs:
-  JenkinsInstance:
-    Description: "Sandbox jenkins instance"
-    Value: !Ref SandboxJenkinsInstance
+  SandboxInstance:
+    Description: "Sandbox instance"
+    Value: !Ref SandboxInstance
     Export:
       Name: !Sub "${NamespaceParameter}-${ServiceNameParameter}-instance"

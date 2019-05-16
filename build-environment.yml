@@ -3,14 +3,10 @@
 - name: "Creates/Updates {{ branch_name }} environment"
   hosts: local
   gather_facts: False
-  vars:
-    region: us-east-1
-    ami_id: ami-0de53d8956e8dcf80
-    instance_type: "t2.micro"
   tasks:
     - name: "Runs {{ branch_name }}-environment cloudformation stack"
       cloudformation:
-        region: "{{ region }}"
+        region: "{{ aws_region }}"
         stack_name: "{{ branch_name }}-environment"
         template: "./cloudformation_templates/1-environment.yml"
         state: "present"
@@ -22,20 +18,27 @@
           Stack: "{{ branch_name }}-environment"
           Environment: "{{ branch_name }}"
           Commit: "{{ commit_hash }}"
+
+- name: "Creates/Updates Jenkins service inside the {{ branch_name }} environment"
+  hosts: local
+  gather_facts: False
+  vars:
+    service_name: "jenkins"
+  tasks:
     - name: "Adds jenkins service to environment"
       cloudformation:
-        region: "{{ region }}"
-        stack_name: "{{ branch_name }}-jenkins"
-        template: "./cloudformation_templates/4-jenkins-service.yml"
+        region: "{{ aws_region }}"
+        stack_name: "{{ branch_name }}-{{ service_name }}"
+        template: "./cloudformation_templates/4-sandbox-service.yml"
         state: "present"
         disable_rollback: false
         template_parameters:
           NamespaceParameter: "{{ branch_name }}"
-          ServiceNameParameter: "jenkins"
+          ServiceNameParameter: "{{ service_name }}"
           TemplatesBucketParameter: "{{ cf_bucket }}"
-          ScriptParameter: "{{lookup('file', './shells/install_jenkins.sh') }}"
+          ScriptParameter: "{{lookup('file', './shells/install_{{ service_name }}.sh') }}"
         tags:
-          Stack: "{{ branch_name }}-jenkins"
-          Service: "jenkins"
+          Stack: "{{ branch_name }}-{{ service_name }}"
+          Service: "{{ service_name }}"
           Environment: "{{ branch_name }}"
           Commit: "{{ commit_hash }}"

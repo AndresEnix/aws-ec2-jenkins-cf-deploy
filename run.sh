@@ -6,6 +6,7 @@ CFT_BASE_NAME='ae-templates-for'
 PEM_BASE_NAME='ae-keys-for'
 CFT_BUCKET=''
 PEM_BUCKET=''
+AWS_REGION='us-east-1'
 
 checkout() {
     BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
@@ -26,7 +27,7 @@ synch_files() {
     if aws s3 ls "s3://$1" 2>&1 | grep -q 'NoSuchBucket' ;
     then
         echo "[INFO] Creating bucket $1"
-        aws s3api create-bucket --bucket $1 --region us-east-1
+        aws s3api create-bucket --bucket $1 --region $AWS_REGION
         echo "[INFO] Enabling versioning configuration for $1 bucket"
         aws s3api put-bucket-versioning --bucket $1 --versioning-configuration Status=Enabled
     fi
@@ -61,11 +62,11 @@ create_environment_key() {
 }
 
 run_playbook(){
-    ansible-playbook build-environment.yml --extra-vars "branch_name=$1 commit_hash=$2 cf_bucket=$3"
+    ansible-playbook build-environment.yml --extra-vars "branch_name=$1 commit_hash=$2 cf_bucket=$3 aws_region=$4"
 }
 
 # Body
 checkout
 synch_files $CFT_BUCKET "cloudformation_templates" true
 create_environment_key "$BRANCH_NAME-key" "keys" $PEM_BUCKET
-run_playbook $BRANCH_NAME $COMMIT_HASH $CFT_BUCKET
+run_playbook $BRANCH_NAME $COMMIT_HASH $CFT_BUCKET $AWS_REGION
