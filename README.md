@@ -1,5 +1,5 @@
 # aws-jenkins-deploy
-Repository that contains the code to deploy Jenkins on EC2
+Repository that contains the code to deploy Jenkins on EC2 using ansible and cloud formation
 
 ## Getting Started
 Just clone the project and execute the ./run.sh script
